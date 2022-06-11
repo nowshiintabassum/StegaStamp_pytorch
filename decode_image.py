@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageOps
 import torch
 from torchvision import transforms
-
+import model
 BCH_POLYNOMIAL = 137
 BCH_BITS = 5
 
@@ -27,8 +27,14 @@ def main():
         print('Missing input image')
         return
 
-    decoder = torch.load(args.model)
-    decoder.eval()
+    # decoder = torch.load(args.model)
+    # decoder.eval()
+
+    decoder = model.StegaStampDecoder()
+
+    checkpoint = torch.load(args.model)
+    decoder.load_state_dict(checkpoint['state_dict'])
+
     if args.cuda:
         decoder = decoder.cuda()
 

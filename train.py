@@ -24,6 +24,22 @@ if not os.path.exists(args.checkpoints_path):
 if not os.path.exists(args.saved_models):
     os.makedirs(args.saved_models)
 
+def load_checkpoint(model, optimizer , optimizer_secret, filename):
+    # Note: Input model & optimizer should be pre-defined.  This routine only updates their states.
+    if os.path.isfile(filename):
+        print("=> loading checkpoint '{}'".format(filename))
+        checkpoint = torch.load(filename)
+        start_step = checkpoint['step']
+        model.load_state_dict(checkpoint['state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        optimizer_secret.load_state_dict(checkpoint['secret_optimizer'])
+        
+        print("=> loaded checkpoint '{}' (step {})"
+                  .format(filename, checkpoint['step']))
+    else:
+        print("=> no checkpoint found at '{}'".format(filename))
+
+    return model, optimizer, optimizer_secret ,start_step
 
 def main():
     log_path = os.path.join(args.logs_path, str(args.exp_name))
@@ -50,11 +66,19 @@ def main():
     optimize_secret_loss = optim.Adam(g_vars, lr=args.lr)
     optimize_dis = optim.RMSprop(d_vars, lr=0.00001)
 
+    global_step = 0
+
+    if args.pretrained != 'None':
+        encoder_filepath = os.path.join(args.pretrained, 'encoder.pth')
+        encoder, optimize_loss, optimize_secret_loss, global_step = load_checkpoint(encoder, optimize_loss,optimize_secret_loss,encoder_filepath)
+        decoder_filepath = os.path.join(args.pretrained, 'decoder.pth')
+        decoder, optimize_loss, optimize_secret_loss, global_step = load_checkpoint(decoder, optimize_loss,optimize_secret_loss,decoder_filepath)
+
     height = 400
     width = 400
 
     total_steps = len(dataset) // args.batch_size + 1
-    global_step = 0
+    
 
     while global_step < args.num_steps:
         for _ in range(min(total_steps, args.num_steps - global_step)):
@@ -101,8 +125,14 @@ def main():
                     optimize_dis.step()
 
             if global_step % 10 == 0:
-                torch.save(encoder, os.path.join(args.saved_models, "encoder.pth"))
-                torch.save(decoder, os.path.join(args.saved_models, "decoder.pth"))
+                encoder_state = {'step': global_step + 1, 'state_dict': encoder.state_dict(),
+                        'optimizer': optimize_loss.state_dict() , 'secret_optimizer': optimize_secret_loss.state_dict()}
+                torch.save(encoder_state, os.path.join(args.saved_models, "encoder.pth"))
+
+                decoder_state = {'step': global_step + 1, 'state_dict': decoder.state_dict(),
+                        'optimizer': optimize_loss.state_dict() , 'secret_optimizer': optimize_secret_loss.state_dict()}
+                torch.save(decoder_state, os.path.join(args.saved_models, "decoder.pth"))
+
             print('Loss = {:.4f}'.format(loss))
             print('Step : ',global_step)
     writer.close()

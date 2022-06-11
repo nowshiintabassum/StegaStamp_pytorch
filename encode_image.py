@@ -3,7 +3,7 @@ import glob
 import bchlib
 import numpy as np
 from PIL import Image, ImageOps
-
+import model
 import torch
 from torchvision import transforms
 
@@ -31,8 +31,13 @@ def main():
         print('Missing input image')
         return
 
-    encoder = torch.load(args.model)
-    encoder.eval()
+    # encoder = torch.load(args.model)
+    # encoder.eval()
+
+    encoder = model.StegaStampEncoder()
+    checkpoint = torch.load(args.model)
+    encoder.load_state_dict(checkpoint['state_dict'])
+    
     if args.cuda:
         encoder = encoder.cuda()
 

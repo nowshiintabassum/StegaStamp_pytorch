@@ -44,4 +44,4 @@ rnd_noise_ramp: 1000
 contrast_ramp: 1000
 jpeg_quality_ramp: 1000
 no_im_loss_steps: 1500
-pretrained: None
+pretrained: 'None'
