@@ -100,11 +100,13 @@ def main():
                     optimize_dis.zero_grad()
                     optimize_dis.step()
 
-            # if global_step % 10 == 0:
+            if global_step % 10 == 0:
+                torch.save(encoder, os.path.join(args.saved_models, "encoder.pth"))
+                torch.save(decoder, os.path.join(args.saved_models, "decoder.pth"))
             print('Loss = {:.4f}'.format(loss))
+            print('Step : ',global_step)
     writer.close()
-    torch.save(encoder, os.path.join(args.saved_models, "encoder.pth"))
-    torch.save(decoder, os.path.join(args.saved_models, "decoder.pth"))
+    
 
 
 if __name__ == '__main__':

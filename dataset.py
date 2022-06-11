@@ -12,7 +12,7 @@ class StegaData(Dataset):
         self.data_path = data_path
         self.secret_size = secret_size
         self.size = size
-        self.files_list = glob(os.path.join(self.data_path, '*.jpg'))
+        self.files_list = glob(os.path.join(self.data_path, '*.png'))
         self.to_tensor = transforms.ToTensor()
 
     def __getitem__(self, idx):
@@ -20,8 +20,9 @@ class StegaData(Dataset):
 
         img_cover = Image.open(img_cover_path).convert('RGB')
         img_cover = ImageOps.fit(img_cover, self.size)
+        img_cover = np.array(img_cover, dtype=np.float32) / 255.
         img_cover = self.to_tensor(img_cover)
-        # img_cover = np.array(img_cover, dtype=np.float32) / 255.
+        
 
         secret = np.random.binomial(1, 0.5, self.secret_size)
         secret = torch.from_numpy(secret).float()

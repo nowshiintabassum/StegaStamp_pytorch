@@ -42,7 +42,8 @@ def main():
     with torch.no_grad():
         for filename in files_list:
             image = Image.open(filename).convert("RGB")
-            image = ImageOps.fit(image, size)
+            image = np.array(ImageOps.fit(image,size),dtype=np.float32)
+            image /= 255.
             image = to_tensor(image).unsqueeze(0)
             if args.cuda:
                 image = image.cuda()
