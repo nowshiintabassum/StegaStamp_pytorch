@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 import lpips
 
-with open('./StegaStamp_pytorch/cfg/settings.yaml', 'r') as f:
+with open('./StegaStamp_pytorch/cfg/setting.yaml', 'r') as f:
     args = EasyDict(yaml.load(f, Loader=yaml.SafeLoader))
 
 if not os.path.exists(args.checkpoints_path):
