@@ -124,7 +124,7 @@ def main():
                     optimize_dis.zero_grad()
                     optimize_dis.step()
 
-            if global_step % 10 == 0:
+            if global_step % 1000 == 0:
                 encoder_state = {'step': global_step + 1, 'state_dict': encoder.state_dict(),
                         'optimizer': optimize_loss.state_dict() , 'secret_optimizer': optimize_secret_loss.state_dict()}
                 torch.save(encoder_state, os.path.join(args.saved_models, "encoder.pth"))
